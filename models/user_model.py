@@ -9,6 +9,7 @@ class UserModel:
 
     @staticmethod
     def hash_password(password):
+        # Mengubah teks kata sandi menjadi format hash SHA-256 secara satu arah
         return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
     def autentikasi(self, username, password):
@@ -21,3 +22,20 @@ class UserModel:
             cursor.close()
             return user
         return None
+
+    def register_user(self, username, password, role='anggota'):
+        # Fungsi tambahan tugas: mendaftarkan user baru dengan enkripsi SHA-256 otomatis
+        if self.conn:
+            cursor = self.conn.cursor()
+            password_hash = self.hash_password(password)
+            query = "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)"
+            try:
+                cursor.execute(query, (username, password_hash, role))
+                self.conn.commit()
+                cursor.close()
+                return True
+            except Exception as e:
+                print(f"Error Register: {e}")
+                cursor.close()
+                return False
+        return False

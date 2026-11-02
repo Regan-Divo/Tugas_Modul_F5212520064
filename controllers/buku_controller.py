@@ -16,6 +16,10 @@ class BukuController:
         self.view.btn_update.configure(command=self.perbarui_data)
         self.view.btn_hapus.configure(command=self.hapus_data)
         
+        # Binding tombol Logout (Tambahan Tugas Modul 7)
+        if hasattr(self.view, 'btn_logout'):
+            self.view.btn_logout.configure(command=self.proses_logout)
+        
         # Event klik baris tabel untuk memilih data
         self.view.tabel.bind("<ButtonRelease-1>", self.pilih_tabel)
         
@@ -56,15 +60,15 @@ class BukuController:
         if self.user_role != "admin":
             messagebox.showerror("Akses Ditolak", "Anda tidak memiliki izin untuk menambah data!")
             return
-            
+
         judul = self.view.entry_judul.get()
         penulis = self.view.entry_penulis.get()
         tahun = self.view.entry_tahun.get()
-        
+
         if not judul or not penulis or not tahun:
             messagebox.showwarning("Peringatan", "Semua kolom form harus diisi!")
             return
-            
+
         if self.model.create_buku(judul, penulis, tahun):
             messagebox.showinfo("Sukses", "Data buku berhasil disimpan!")
             self.view.entry_judul.delete(0, 'end')
@@ -78,12 +82,12 @@ class BukuController:
         if self.user_role != "admin":
             messagebox.showerror("Akses Ditolak", "Anda tidak memiliki izin untuk memperbarui data!")
             return
-            
+
         if hasattr(self, 'selected_id'):
             judul = self.view.entry_judul.get()
             penulis = self.view.entry_penulis.get()
             tahun = self.view.entry_tahun.get()
-            
+
             success = self.model.update_buku(self.selected_id, judul, penulis, tahun)
             if success:
                 messagebox.showinfo("Sukses", "Data buku berhasil diperbarui!")
@@ -95,7 +99,7 @@ class BukuController:
         if self.user_role != "admin":
             messagebox.showerror("Akses Ditolak", "Anda tidak memiliki izin untuk menghapus data!")
             return
-            
+
         if hasattr(self, 'selected_id'):
             confirm = messagebox.askyesno("Konfirmasi", "Yakin ingin menghapus data ini?")
             if confirm:
@@ -105,6 +109,12 @@ class BukuController:
                     self.muat_data_tabel()
         else:
             messagebox.showwarning("Peringatan", "Pilih data pada tabel yang ingin dihapus!")
+
+    def proses_logout(self):
+        from controllers.auth_controller import AuthController
+        self.view.destroy()
+        auth_app = AuthController()
+        auth_app.run()
 
     def run(self):
         self.view.mainloop()
